@@ -9,6 +9,9 @@ import (
 
 const (
 	createRestorePointDescription = "Creates cluster-wide restore point with the specified name"
+	synchronizedFlag = "synchronized"
+
+	synchronizedShorthand = "s"
 )
 
 var (
@@ -20,14 +23,18 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			name := args[0]
 
-			restorePointCreator, err := greenplum.NewRestorePointCreator(name)
+			restorePointCreator, err := greenplum.NewRestorePointCreator(name, synchronized)
 			tracelog.ErrorLogger.FatalOnError(err)
 
 			restorePointCreator.Create()
 		},
 	}
+	synchronized   = false
 )
 
 func init() {
 	cmd.AddCommand(createRestorePointCmd)
+
+	createRestorePointCmd.Flags().BoolVarP(&synchronized, synchronizedFlag, synchronizedShorthand,
+		false, "Creates gp cluster-wide restore point, making sure that corresponding WAL files have been archived.")
 }
